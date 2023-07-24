@@ -16,7 +16,8 @@ let searchVAlue
 async function onSubmitForm(evt) {
   
     evt.preventDefault();
-    searchVAlue = formEl.elements.searchQuery.value.trim();
+  searchVAlue = formEl.elements.searchQuery.value.trim();
+  loadMoreBtn.style.visibility = "hidden"
     await servicAPI(searchVAlue).then(resp => {
       if (resp.data.hits.length === 0) {
         Notiflix.Notify
