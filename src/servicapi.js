@@ -11,7 +11,7 @@ const options ={
 function servicAPI(name, page) {
 
     return axios.get(`?key=${API_KEY}&q=${name}&image_type=${options.image_type}&orientation=${options.orientation}&safesearch =${options.safesearch}&page=${page}&per_page=40`)
-        .then(resp=>resp)
+        .then(resp=>resp.data.hits)
     
     
     

@@ -10,47 +10,62 @@ divEl.style.flexWrap = "wrap";
 divEl.style.justifyContent= "center"
 formEl.addEventListener("submit", onSubmitForm)
 loadMoreBtn.addEventListener("click", onLoadValue)
-loadMoreBtn.style.visibility = "hidden"
+hidenVisibleBtn("hidden")
+
 
 let searchVAlue
+let page = 1;
 async function onSubmitForm(evt) {
+  try {
+    let page = 1;
   
     evt.preventDefault();
+    
   searchVAlue = formEl.elements.searchQuery.value.trim();
-  loadMoreBtn.style.visibility = "hidden"
-    await servicAPI(searchVAlue).then(resp => {
-      if (resp.data.hits.length === 0) {
-        Notiflix.Notify
-          .failure("Sorry, there are no images matching your search query. Please try again.")
-      }
-      createMarkup(resp.data.hits)
-      loadMoreBtn.style.visibility = "visible";
-      // evt.currentTarget.reset()
-    })
-   
+  if (searchVAlue === "") {
+    throw new Error()
+  }
+    
+    hidenVisibleBtn("hidden")
+  const searchValueImg = await servicAPI(searchVAlue)
+  console.log(searchValueImg);
+  if (searchValueImg.length === 0) {
+  throw new Error()
+    }
+    if (searchValueImg.length < 40) {
+      hidenVisibleBtn("hidden")
+    }
+    divEl.innerHTML = createMarkup(searchValueImg)
+    hidenVisibleBtn("visible")
+  }
+  catch (er) {
+    Notiflix.Notify
+    .failure("Sorry, there are no images matching your search query. Please try again.")
+  } 
 }
 
-let page = 1;
+
 
 async function onLoadValue() {
+  try { 
   page += 1;
-  await servicAPI(searchVAlue, page).then(resp => {
-      // if (resp.data.hits.length === 0) {
-      //   Notiflix.Notify
-      //     .failure("Sorry, there are no images matching your search query. Please try again.")
-      // }
-    if (resp.data.hits.length === 0) {
-      loadMoreBtn.style.visibility="hidden"
+  const searchValueImg = await servicAPI(searchVAlue, page)
+    if (searchValueImg.length < 40) {
+      hidenVisibleBtn("hidden")
     }
-      createMarkup(resp.data.hits)
-      
-    }).catch(err=>console.log(err))
+    divEl.insertAdjacentHTML("beforeend", createMarkup(searchValueImg))  
+}
+  catch (err) {
+    console.log(err)
+    hidenVisibleBtn("hidden")
+    page = 1;
+  } 
 }
 
 
 function createMarkup(arr) {
     console.log(arr.length);
-    divEl.innerHTML = arr.map(val =>`<div class="photo-card">
+    return arr.map(val =>`<div class="photo-card">
   <img src="${val.webformatURL} " alt="${val.tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
@@ -70,3 +85,8 @@ function createMarkup(arr) {
     
 }
 
+
+
+function hidenVisibleBtn(flag) {
+  loadMoreBtn.style.visibility=`${flag}`
+}
